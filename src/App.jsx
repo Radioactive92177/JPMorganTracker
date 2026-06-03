@@ -9,12 +9,50 @@ import StudyLog from './components/StudyLog';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
+/**
+ * Apply incremental migrations when loading older persisted state.
+ * Each migration is idempotent — safe to run multiple times.
+ */
+function migrate(saved) {
+  let s = saved;
+
+  // v2: mark p2-python as pre-completed (once only, via _migrated flag),
+  //     and ensure dsa.dailyCount exists.
+  if (!s.schemaVersion || s.schemaVersion < 2) {
+    s = {
+      ...s,
+      schemaVersion: 2,
+      phases: s.phases.map(p =>
+        p.id !== 'phase2' ? p : {
+          ...p,
+          skills: p.skills.map(sk => {
+            if (sk.id !== 'p2-python' || sk._migrated) return sk;
+            return {
+              ...sk,
+              completed: true,
+              tag: 'already have',
+              notes: sk.notes || 'Production ETL automation, healthcare data pipelines, cron scheduling — 4 years nightly use at Cotiviti/Edifecs.',
+              _migrated: true,
+            };
+          }),
+        }
+      ),
+      dsa: {
+        ...s.dsa,
+        dailyCount: s.dsa.dailyCount || {},
+      },
+    };
+  }
+
+  return s;
+}
+
 /** Load state from localStorage; fall back to default seed on first visit */
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return buildDefaultState();
-    return JSON.parse(raw);
+    return migrate(JSON.parse(raw));
   } catch {
     return buildDefaultState();
   }
@@ -75,6 +113,7 @@ export default function App() {
     setState(prev => {
       const dsa = prev.dsa;
       const alreadyToday = dsa.solvedDays.includes(todayStr);
+      const dailyCount = dsa.dailyCount || {};
       return {
         ...prev,
         dsa: {
@@ -82,6 +121,7 @@ export default function App() {
           easySolved: difficulty === 'easy' ? dsa.easySolved + 1 : dsa.easySolved,
           mediumSolved: difficulty === 'medium' ? dsa.mediumSolved + 1 : dsa.mediumSolved,
           solvedDays: alreadyToday ? dsa.solvedDays : [...dsa.solvedDays, todayStr],
+          dailyCount: { ...dailyCount, [todayStr]: (dailyCount[todayStr] || 0) + 1 },
         },
       };
     });
@@ -130,6 +170,18 @@ export default function App() {
       setState(fresh);
     }
   }, []);
+
+  // ── Export progress ───────────────────────────────────────────────────────
+  const exportProgress = useCallback(() => {
+    const json = JSON.stringify(state, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'raju-roadmap-backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [state]);
 
   const { phases, dsa, studyLog, studyStreak } = state;
 
@@ -184,8 +236,16 @@ export default function App() {
           <NightShiftCounter />
         </footer>
 
-        {/* Reset — discreet */}
-        <div className="mt-8 text-center">
+        {/* Reset + Export — discreet */}
+        <div className="mt-8 text-center flex items-center justify-center gap-4">
+          <button
+            onClick={exportProgress}
+            style={{ color: '#374151', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#22d3ee'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#374151'; }}
+          >
+            ↓ Export progress
+          </button>
           <button
             onClick={resetAll}
             style={{ color: '#374151', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem' }}

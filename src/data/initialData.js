@@ -87,10 +87,10 @@ export const initialPhases = [
         id: 'p2-python',
         name: 'Python Scripting',
         description: 'Automation-level Python; also used as DSA practice language',
-        status: 'learning',
-        tag: 'learning',
-        completed: false,
-        notes: '',
+        status: 'complete',
+        tag: 'already have',
+        completed: true,
+        notes: 'Production ETL automation, healthcare data pipelines, cron scheduling — 4 years nightly use at Cotiviti/Edifecs.',
       },
       {
         id: 'p2-dsa1',
@@ -231,12 +231,15 @@ export const initialPhases = [
 /** Build the full default state object seeded into localStorage on first load */
 export function buildDefaultState() {
   return {
+    schemaVersion: 2,
     phases: initialPhases,
     dsa: {
       easySolved: 0,
       mediumSolved: 0,
       // Array of ISO date strings — one per day that had at least 1 problem logged
       solvedDays: [],
+      // Map of ISO date string → number of problems solved that day (for bar chart)
+      dailyCount: {},
     },
     studyLog: [],
     // ISO date string of last day the user marked a "studied today" entry — for streak

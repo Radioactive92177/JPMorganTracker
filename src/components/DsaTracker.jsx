@@ -97,7 +97,62 @@ function StreakBadge({ days }) {
   );
 }
 
-// ─── Today / this week helpers ────────────────────────────────────────────
+// ─── Bar chart for last 7 days ────────────────────────────────────────────
+function WeekBarChart({ weekDays, dailyCount, todayStr }) {
+  const counts = weekDays.map(d => dailyCount[d] || 0);
+  const maxCount = Math.max(1, ...counts);
+  const BAR_MAX_H = 40; // px
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: `${BAR_MAX_H + 2}px` }}>
+        {weekDays.map((day, i) => {
+          const count = counts[i];
+          const barH = count > 0 ? Math.max(4, Math.round((count / maxCount) * BAR_MAX_H)) : 3;
+          const isToday = day === todayStr;
+          return (
+            <div
+              key={day}
+              title={`${day}: ${count} problem${count !== 1 ? 's' : ''}`}
+              style={{
+                flex: 1,
+                height: `${barH}px`,
+                backgroundColor: count > 0 ? (isToday ? '#c084fc' : '#a855f7') : '#1a1f2e',
+                borderRadius: '3px 3px 0 0',
+                outline: isToday ? '1px solid #6366f1' : 'none',
+                transition: 'height 0.3s ease',
+                boxShadow: count > 0 ? '0 0 5px #a855f755' : 'none',
+                cursor: 'default',
+              }}
+            />
+          );
+        })}
+      </div>
+      {/* Day labels */}
+      <div style={{ display: 'flex', gap: '4px', marginTop: '3px' }}>
+        {weekDays.map((day, i) => {
+          const count = counts[i];
+          return (
+            <div
+              key={day}
+              style={{
+                flex: 1,
+                textAlign: 'center',
+                fontSize: '9px',
+                color: count > 0 ? '#64748b' : '#1f2937',
+                lineHeight: 1,
+              }}
+            >
+              {count > 0 ? count : new Date(day + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 1)}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
 function getTodayStr() { return new Date().toISOString().slice(0, 10); }
 
 function getWeekDays() {
@@ -235,29 +290,10 @@ export default function DsaTracker({ dsa, onAddProblem }) {
         </div>
       </div>
 
-      {/* Weekly heatmap strip */}
+      {/* Weekly bar chart */}
       <div className="mt-5 pt-4" style={{ borderTop: '1px solid #1a1f2e' }}>
-        <p className="text-xs mb-2" style={{ color: '#374151' }}>Last 7 days</p>
-        <div className="flex gap-1.5">
-          {weekDays.map(day => {
-            const active = dsa.solvedDays.includes(day);
-            const isToday = day === todayStr;
-            return (
-              <div
-                key={day}
-                title={day}
-                className="flex-1 rounded"
-                style={{
-                  height: '20px',
-                  backgroundColor: active ? '#a855f7' : '#1a1f2e',
-                  border: isToday ? '1px solid #6366f1' : 'none',
-                  opacity: active ? 1 : 0.6,
-                  transition: 'background-color 0.2s ease',
-                }}
-              />
-            );
-          })}
-        </div>
+        <p className="text-xs mb-3" style={{ color: '#374151' }}>Last 7 days</p>
+        <WeekBarChart weekDays={weekDays} dailyCount={dsa.dailyCount || {}} todayStr={todayStr} />
         <div className="flex justify-between text-xs mt-1" style={{ color: '#1f2937' }}>
           <span>6d ago</span>
           <span>today</span>
