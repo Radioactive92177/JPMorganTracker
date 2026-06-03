@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
 // ─── Tag colours ─────────────────────────────────────────────────────────
 const TAG_STYLES = {
@@ -13,8 +13,6 @@ function NotesField({ value, onChange }) {
   const [draft, setDraft] = useState(value);
   const ref = useRef(null);
 
-  useEffect(() => { setDraft(value); }, [value]);
-
   const commit = () => {
     setEditing(false);
     if (draft !== value) onChange(draft);
@@ -23,7 +21,7 @@ function NotesField({ value, onChange }) {
   if (!editing) {
     return (
       <button
-        onClick={() => setEditing(true)}
+        onClick={() => { setDraft(value); setEditing(true); }}
         className="text-left w-full mt-1.5 text-xs rounded px-2 py-1.5 leading-relaxed"
         style={{
           color: value ? '#94a3b8' : '#374151',
