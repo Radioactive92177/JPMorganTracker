@@ -167,6 +167,16 @@ export default function App() {
   const resetAll = useCallback(() => {
     if (window.confirm('This will wipe ALL progress, DSA counts, and study logs. Are you sure?')) {
       const fresh = buildDefaultState();
+      // Ensure every skill is reset to uncompleted regardless of default state
+      fresh.phases = fresh.phases.map(phase => ({
+        ...phase,
+        skills: phase.skills.map(skill => ({
+          ...skill,
+          completed: false,
+          notes: '',
+          tag: skill.tag === 'already have' ? 'learning' : skill.tag,
+        })),
+      }));
       setState(fresh);
     }
   }, []);
