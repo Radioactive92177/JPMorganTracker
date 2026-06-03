@@ -232,7 +232,13 @@ export const initialPhases = [
 export function buildDefaultState() {
   return {
     schemaVersion: 2,
-    phases: initialPhases,
+    // Deep-clone so each call (including reset) gets independent objects —
+    // prevents shared-reference memoisation drift between the module constant
+    // and live React state.
+    phases: initialPhases.map(phase => ({
+      ...phase,
+      skills: phase.skills.map(skill => ({ ...skill })),
+    })),
     dsa: {
       easySolved: 0,
       mediumSolved: 0,
