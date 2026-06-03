@@ -24,9 +24,9 @@ function NotesField({ value, onChange }) {
         onClick={() => { setDraft(value); setEditing(true); }}
         className="text-left w-full mt-1.5 text-xs rounded px-2 py-1.5 leading-relaxed"
         style={{
-          color: value ? '#94a3b8' : '#374151',
-          backgroundColor: '#0d1018',
-          border: '1px solid #1e2433',
+          color: value ? 'var(--color-text-muted)' : 'var(--color-text-ghost)',
+          backgroundColor: 'var(--color-surface-alt)',
+          border: '1px solid var(--color-border)',
         }}
       >
         {value || '+ Add notes…'}
@@ -45,8 +45,8 @@ function NotesField({ value, onChange }) {
       onKeyDown={e => { if (e.key === 'Escape') { setDraft(value); setEditing(false); } }}
       className="w-full mt-1.5 text-xs rounded px-2 py-1.5 leading-relaxed resize-none outline-none"
       style={{
-        color: '#e2e8f0',
-        backgroundColor: '#0d1018',
+        color: 'var(--color-text)',
+        backgroundColor: 'var(--color-surface-alt)',
         border: '1px solid #3b82f6',
       }}
       placeholder="Notes, resources, progress details…"
@@ -67,8 +67,8 @@ export default function SkillItem({ skill, phaseId, onToggle, onUpdateNotes }) {
     <div
       className="rounded-lg p-3 mb-2 last:mb-0"
       style={{
-        backgroundColor: skill.completed ? 'rgba(34,211,238,0.03)' : '#0d1018',
-        border: `1px solid ${skill.completed ? 'rgba(34,211,238,0.12)' : '#1a1f2e'}`,
+        backgroundColor: skill.completed ? 'rgba(34,211,238,0.03)' : 'var(--color-surface-alt)',
+        border: `1px solid ${skill.completed ? 'rgba(34,211,238,0.12)' : 'var(--color-border)'}`,
         opacity: skill.completed ? 0.85 : 1,
       }}
     >
@@ -79,7 +79,7 @@ export default function SkillItem({ skill, phaseId, onToggle, onUpdateNotes }) {
           className="shrink-0 mt-0.5 w-4 h-4 rounded flex items-center justify-center cursor-pointer"
           style={{
             backgroundColor: skill.completed ? '#22d3ee' : 'transparent',
-            border: `2px solid ${skill.completed ? '#22d3ee' : '#374151'}`,
+            border: `2px solid ${skill.completed ? '#22d3ee' : 'var(--color-text-ghost)'}`,
             transition: 'all 0.15s ease',
           }}
           aria-label={skill.completed ? 'Mark incomplete' : 'Mark complete'}
@@ -97,7 +97,7 @@ export default function SkillItem({ skill, phaseId, onToggle, onUpdateNotes }) {
             <span
               className="text-sm font-medium leading-tight"
               style={{
-                color: skill.completed ? '#64748b' : '#cbd5e1',
+                color: skill.completed ? 'var(--color-text-dim)' : 'var(--color-text-muted)',
                 textDecoration: skill.completed ? 'line-through' : 'none',
               }}
             >
@@ -117,7 +117,7 @@ export default function SkillItem({ skill, phaseId, onToggle, onUpdateNotes }) {
           </div>
 
           {/* Description */}
-          <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#374151' }}>
+          <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--color-text-ghost)' }}>
             {skill.description}
           </p>
 

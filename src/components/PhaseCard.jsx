@@ -33,7 +33,7 @@ function ProgressBar({ pct, accent }) {
   return (
     <div
       className="relative rounded-full overflow-hidden"
-      style={{ height: '6px', backgroundColor: '#1a1f2e' }}
+      style={{ height: '6px', backgroundColor: 'var(--color-border)' }}
     >
       <div
         className="absolute left-0 top-0 h-full rounded-full"
@@ -66,8 +66,8 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
     <div
       className="rounded-xl overflow-hidden"
       style={{
-        backgroundColor: '#12151f',
-        border: `1px solid ${active ? colors.border : '#1a1f2e'}`,
+        backgroundColor: 'var(--color-surface)',
+        border: `1px solid ${active ? colors.border : 'var(--color-border)'}`,
         boxShadow: active ? `0 0 20px ${colors.glow}` : 'none',
         transition: 'box-shadow 0.3s ease',
       }}
@@ -90,7 +90,7 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
               {/* Phase name */}
               <h3
                 className="text-sm font-semibold leading-tight"
-                style={{ color: active ? '#e2e8f0' : '#94a3b8' }}
+                style={{ color: active ? 'var(--color-text)' : 'var(--color-text-muted)' }}
               >
                 {phase.name}
               </h3>
@@ -106,7 +106,7 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
               {upcoming && (
                 <span
                   className="text-xs px-2 py-0.5 rounded-full"
-                  style={{ color: '#4b5563', backgroundColor: '#0d1018', border: '1px solid #1e2433' }}
+                  style={{ color: 'var(--color-text-faint)', backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)' }}
                 >
                   Upcoming
                 </span>
@@ -122,7 +122,7 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
             </div>
 
             {/* Date + week count */}
-            <p className="text-xs" style={{ color: '#374151' }}>
+            <p className="text-xs" style={{ color: 'var(--color-text-ghost)' }}>
               {phase.dateRange} · {phase.weeks} weeks
             </p>
           </div>
@@ -130,7 +130,7 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
           {/* Right: pct (hidden for upcoming) + chevron */}
           <div className="flex items-center gap-3 shrink-0">
             {upcoming ? (
-              <span className="text-xs flex items-center gap-1" style={{ color: '#4b5563' }}>
+              <span className="text-xs flex items-center gap-1" style={{ color: 'var(--color-text-faint)' }}>
                 🔒 {formatStartDate(phase.startDate)}
               </span>
             ) : (
@@ -143,7 +143,7 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
               style={{
                 transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'transform 0.25s ease',
-                color: '#374151',
+                color: 'var(--color-text-ghost)',
               }}
             >
               <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -154,13 +154,13 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
         {/* Progress bar (hidden for upcoming) */}
         <div className="mt-3">
           {upcoming ? (
-            <p className="text-xs" style={{ color: '#374151' }}>
+            <p className="text-xs" style={{ color: 'var(--color-text-ghost)' }}>
               Starts {formatStartDate(phase.startDate)} · {totalCount} skills planned
             </p>
           ) : (
             <>
               <ProgressBar pct={pct} accent={colors.accent} />
-              <p className="text-xs mt-1" style={{ color: '#374151' }}>
+              <p className="text-xs mt-1" style={{ color: 'var(--color-text-ghost)' }}>
                 {completedCount} / {totalCount} skills complete
               </p>
             </>
@@ -178,7 +178,7 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
       >
         <div
           className="px-4 pb-4"
-          style={{ borderTop: '1px solid #1a1f2e' }}
+          style={{ borderTop: '1px solid var(--color-border)' }}
         >
           <div className="pt-3">
             {phase.skills.map(skill => (

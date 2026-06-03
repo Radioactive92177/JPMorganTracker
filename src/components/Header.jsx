@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { DSA_TARGET, TARGET_DATE } from '../data/initialData';
+import ThemeToggle from './ThemeToggle';
 
 // ─── Colour map for phase accents ─────────────────────────────────────────
 const PHASE_COLORS = {
@@ -24,20 +25,20 @@ function StatPill({ label, value, accent, sub }) {
   return (
     <div
       className="flex flex-col items-center px-4 py-2 rounded-lg"
-      style={{ backgroundColor: '#12151f', minWidth: '90px' }}
+      style={{ backgroundColor: 'var(--color-surface)', minWidth: '90px' }}
     >
       <span
         className="text-xl font-bold tabular-nums leading-tight"
-        style={{ color: accent || '#e2e8f0' }}
+        style={{ color: accent || 'var(--color-text)' }}
       >
         {value}
       </span>
       {sub && (
-        <span className="text-xs leading-none mb-0.5" style={{ color: accent || '#64748b', opacity: 0.7 }}>
+        <span className="text-xs leading-none mb-0.5" style={{ color: accent || 'var(--color-text-dim)', opacity: 0.7 }}>
           {sub}
         </span>
       )}
-      <span className="text-xs mt-0.5 text-center leading-tight" style={{ color: '#4b5563' }}>
+      <span className="text-xs mt-0.5 text-center leading-tight" style={{ color: 'var(--color-text-faint)' }}>
         {label}
       </span>
     </div>
@@ -51,7 +52,7 @@ function MiniRing({ pct, color }) {
   const offset = circ - (pct / 100) * circ;
   return (
     <svg width="56" height="56" className="shrink-0">
-      <circle cx="28" cy="28" r={r} fill="none" stroke="#1e2433" strokeWidth="5" />
+      <circle cx="28" cy="28" r={r} fill="none" stroke="var(--color-ring-track)" strokeWidth="5" />
       <circle
         cx="28" cy="28" r={r} fill="none"
         stroke={color}
@@ -67,7 +68,7 @@ function MiniRing({ pct, color }) {
         textAnchor="middle"
         fontSize="11"
         fontWeight="700"
-        fill="#e2e8f0"
+        fill="var(--color-text)"
       >
         {pct}%
       </text>
@@ -107,9 +108,9 @@ export default function Header({ phases, dsa, studyStreak }) {
     <header
       className="fixed top-0 left-0 right-0 z-50"
       style={{
-        backgroundColor: 'rgba(10, 12, 20, 0.95)',
+        backgroundColor: 'var(--color-header-bg)',
         backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid #1e2433',
+        borderBottom: '1px solid var(--color-border)',
       }}
     >
       <div className="max-w-6xl mx-auto px-4 py-3">
@@ -119,17 +120,18 @@ export default function Header({ phases, dsa, studyStreak }) {
           <div className="flex items-center gap-3 mr-auto">
             <MiniRing pct={overallPct} color="#22d3ee" />
             <div>
-              <h1 className="text-base font-bold leading-tight" style={{ color: '#e2e8f0' }}>
+              <h1 className="text-base font-bold leading-tight" style={{ color: 'var(--color-text)' }}>
                 M G Raju — DevOps Roadmap
               </h1>
-              <p className="text-xs leading-tight" style={{ color: '#4b5563' }}>
+              <p className="text-xs leading-tight" style={{ color: 'var(--color-text-faint)' }}>
                 JP Morgan SE-II · Hyderabad · Dec 2026 · {completedSkills}/{totalSkills} skills done
               </p>
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="flex flex-wrap gap-2">
+          {/* Theme Toggle + Stats */}
+          <div className="flex flex-wrap items-center gap-2">
+            <ThemeToggle />
             <StatPill
               label="Days to Dec 1"
               value={countdown.toLocaleString()}
@@ -156,23 +158,23 @@ export default function Header({ phases, dsa, studyStreak }) {
             <div
               key={p.id}
               className="flex items-center gap-2 rounded-md px-2.5 py-1"
-              style={{ backgroundColor: '#0d1018' }}
+              style={{ backgroundColor: 'var(--color-surface-alt)' }}
             >
               <span
                 className="w-2 h-2 rounded-full shrink-0"
                 style={{ backgroundColor: PHASE_COLORS[p.color] }}
               />
-              <span className="text-xs hidden sm:block" style={{ color: '#4b5563', minWidth: '80px' }}>
+              <span className="text-xs hidden sm:block" style={{ color: 'var(--color-text-faint)', minWidth: '80px' }}>
                 {p.shortName}
               </span>
               {/* Mini progress bar or lock for upcoming */}
               {p.upcoming ? (
-                <span className="text-xs" style={{ color: '#374151' }}>🔒</span>
+                <span className="text-xs" style={{ color: 'var(--color-text-ghost)' }}>🔒</span>
               ) : (
                 <>
                   <div
                     className="rounded-full overflow-hidden"
-                    style={{ width: '60px', height: '4px', backgroundColor: '#1e2433' }}
+                    style={{ width: '60px', height: '4px', backgroundColor: 'var(--color-ring-track)' }}
                   >
                     <div
                       className="h-full rounded-full"
@@ -183,7 +185,7 @@ export default function Header({ phases, dsa, studyStreak }) {
                       }}
                     />
                   </div>
-                  <span className="text-xs tabular-nums" style={{ color: '#64748b' }}>
+                  <span className="text-xs tabular-nums" style={{ color: 'var(--color-text-dim)' }}>
                     {p.pct}%
                   </span>
                 </>
