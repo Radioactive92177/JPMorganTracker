@@ -143,7 +143,7 @@ function WeekBarChart({ weekDays, dailyCount, todayStr }) {
                 lineHeight: 1,
               }}
             >
-              {count > 0 ? count : new Date(day + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 1)}
+              {count > 0 ? count : new Date(day + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 1)}
             </div>
           );
         })}

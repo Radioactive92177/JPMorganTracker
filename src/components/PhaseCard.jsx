@@ -23,7 +23,8 @@ function isUpcomingPhase(phase) {
 
 /** Format a YYYY-MM-DD date string as "Aug 2026" */
 function formatStartDate(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
+  // Use noon UTC to avoid local-timezone off-by-one shifts
+  const d = new Date(dateStr + 'T12:00:00Z');
   return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 }
 

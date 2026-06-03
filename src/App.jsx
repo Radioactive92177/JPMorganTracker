@@ -16,7 +16,7 @@ import StudyLog from './components/StudyLog';
 function migrate(saved) {
   let s = saved;
 
-  // v2: mark p2-python as pre-completed (if user hasn't added custom notes),
+  // v2: mark p2-python as pre-completed (once only, via _migrated flag),
   //     and ensure dsa.dailyCount exists.
   if (!s.schemaVersion || s.schemaVersion < 2) {
     s = {
@@ -25,14 +25,16 @@ function migrate(saved) {
       phases: s.phases.map(p =>
         p.id !== 'phase2' ? p : {
           ...p,
-          skills: p.skills.map(sk =>
-            sk.id !== 'p2-python' ? sk : {
+          skills: p.skills.map(sk => {
+            if (sk.id !== 'p2-python' || sk._migrated) return sk;
+            return {
               ...sk,
-              completed: sk.notes ? sk.completed : true,
-              tag: sk.notes ? sk.tag : 'already have',
+              completed: true,
+              tag: 'already have',
               notes: sk.notes || 'Production ETL automation, healthcare data pipelines, cron scheduling — 4 years nightly use at Cotiviti/Edifecs.',
-            }
-          ),
+              _migrated: true,
+            };
+          }),
         }
       ),
       dsa: {
