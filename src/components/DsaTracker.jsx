@@ -1,0 +1,269 @@
+import { useMemo } from 'react';
+import { DSA_TARGET } from '../data/initialData';
+
+// ─── Circular progress ring ───────────────────────────────────────────────
+function ProgressRing({ pct, solved, target }) {
+  const r = 48;
+  const stroke = 7;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (Math.min(pct, 100) / 100) * circ;
+  const cx = 60, cy = 60;
+
+  return (
+    <svg width="120" height="120" className="shrink-0">
+      {/* Track */}
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#1a1f2e" strokeWidth={stroke} />
+      {/* Progress */}
+      <circle
+        cx={cx} cy={cy} r={r} fill="none"
+        stroke="url(#dsaGrad)"
+        strokeWidth={stroke}
+        strokeDasharray={circ}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${cx} ${cy})`}
+        style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+      />
+      <defs>
+        <linearGradient id="dsaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#a855f7" />
+          <stop offset="100%" stopColor="#6366f1" />
+        </linearGradient>
+      </defs>
+      {/* Centre text */}
+      <text x={cx} y={cy - 6} textAnchor="middle" fontSize="22" fontWeight="800" fill="#e2e8f0">
+        {solved}
+      </text>
+      <text x={cx} y={cy + 10} textAnchor="middle" fontSize="10" fill="#4b5563">
+        of {target}
+      </text>
+      <text x={cx} y={cy + 24} textAnchor="middle" fontSize="10" fontWeight="600" fill="#a855f7">
+        {pct}%
+      </text>
+    </svg>
+  );
+}
+
+// ─── Add button ───────────────────────────────────────────────────────────
+function AddButton({ label, color, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="flex-1 py-3 rounded-xl text-sm font-semibold cursor-pointer"
+      style={{
+        color: color,
+        backgroundColor: `${color}14`,
+        border: `1px solid ${color}33`,
+        transition: 'background-color 0.15s ease, transform 0.1s ease',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.backgroundColor = `${color}22`; }}
+      onMouseLeave={e => { e.currentTarget.style.backgroundColor = `${color}14`; }}
+      onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.97)'; }}
+      onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+    >
+      +1 {label}
+    </button>
+  );
+}
+
+// ─── Stat block ───────────────────────────────────────────────────────────
+function StatBlock({ value, label, sub, color }) {
+  return (
+    <div className="text-center">
+      <div className="text-2xl font-bold tabular-nums" style={{ color: color || '#e2e8f0' }}>
+        {value}
+      </div>
+      {sub && <div className="text-xs" style={{ color: `${color}99` || '#4b5563' }}>{sub}</div>}
+      <div className="text-xs mt-0.5" style={{ color: '#374151' }}>{label}</div>
+    </div>
+  );
+}
+
+// ─── Streak indicator ────────────────────────────────────────────────────
+function StreakBadge({ days }) {
+  if (days === 0) return null;
+  return (
+    <div
+      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+      style={{
+        color: '#fbbf24',
+        backgroundColor: 'rgba(251,191,36,0.1)',
+        border: '1px solid rgba(251,191,36,0.25)',
+      }}
+    >
+      <span>🔥</span>
+      <span>{days}-day streak</span>
+    </div>
+  );
+}
+
+// ─── Today / this week helpers ────────────────────────────────────────────
+function getTodayStr() { return new Date().toISOString().slice(0, 10); }
+
+function getWeekDays() {
+  const today = new Date();
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    days.push(d.toISOString().slice(0, 10));
+  }
+  return days;
+}
+
+// ─── DsaTracker ───────────────────────────────────────────────────────────
+export default function DsaTracker({ dsa, onAddProblem }) {
+  const total = dsa.easySolved + dsa.mediumSolved;
+  const pct = Math.min(100, Math.round((total / DSA_TARGET) * 100));
+
+  const weekDays = useMemo(() => getWeekDays(), []);
+  const todayStr = getTodayStr();
+
+  // How many problems solved today (we track days but not per-problem breakdown)
+  const solvedToday = dsa.solvedDays.includes(todayStr) ? 1 : 0;
+  const solvedThisWeek = weekDays.filter(d => dsa.solvedDays.includes(d)).length;
+
+  // Compute consecutive-day DSA streak
+  const dsaStreak = useMemo(() => {
+    const sorted = [...dsa.solvedDays].sort().reverse();
+    if (sorted.length === 0) return 0;
+    let streak = 0;
+    let check = new Date();
+    for (const dayStr of sorted) {
+      const checkStr = check.toISOString().slice(0, 10);
+      if (dayStr === checkStr) {
+        streak++;
+        check.setDate(check.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }, [dsa.solvedDays]);
+
+  return (
+    <div
+      className="rounded-2xl p-5"
+      style={{
+        backgroundColor: '#12151f',
+        border: '1px solid rgba(168,85,247,0.25)',
+        boxShadow: '0 0 30px rgba(168,85,247,0.08)',
+      }}
+    >
+      {/* Section header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-base font-bold" style={{ color: '#e2e8f0' }}>
+            DSA Tracker
+          </h2>
+          <p className="text-xs" style={{ color: '#4b5563' }}>
+            LeetCode grind — target {DSA_TARGET} problems before interview sprint
+          </p>
+        </div>
+        <StreakBadge days={dsaStreak} />
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-6 items-center">
+        {/* Ring */}
+        <ProgressRing pct={pct} solved={total} target={DSA_TARGET} />
+
+        {/* Stats + buttons */}
+        <div className="flex-1 w-full">
+          {/* Stats row */}
+          <div className="grid grid-cols-4 gap-3 mb-5">
+            <StatBlock value={dsa.easySolved} label="Easy" color="#4ade80" />
+            <StatBlock value={dsa.mediumSolved} label="Medium" color="#fb923c" />
+            <StatBlock
+              value={solvedThisWeek}
+              label="This week"
+              sub="active days"
+              color="#60a5fa"
+            />
+            <StatBlock
+              value={`${DSA_TARGET - total}`}
+              label="Remaining"
+              color="#a855f7"
+            />
+          </div>
+
+          {/* Add buttons */}
+          <div className="flex gap-3">
+            <AddButton label="Easy" color="#4ade80" onClick={() => onAddProblem('easy')} />
+            <AddButton label="Medium" color="#fb923c" onClick={() => onAddProblem('medium')} />
+          </div>
+
+          {/* Progress bar breakdown */}
+          <div className="mt-4">
+            <div
+              className="rounded-full overflow-hidden flex"
+              style={{ height: '8px', backgroundColor: '#1a1f2e' }}
+            >
+              {/* Easy segment */}
+              <div
+                style={{
+                  width: `${(dsa.easySolved / DSA_TARGET) * 100}%`,
+                  backgroundColor: '#4ade80',
+                  transition: 'width 0.5s ease',
+                  boxShadow: '0 0 6px #4ade8066',
+                }}
+              />
+              {/* Medium segment */}
+              <div
+                style={{
+                  width: `${(dsa.mediumSolved / DSA_TARGET) * 100}%`,
+                  backgroundColor: '#fb923c',
+                  transition: 'width 0.5s ease',
+                  boxShadow: '0 0 6px #fb923c66',
+                }}
+              />
+            </div>
+            <div className="flex justify-between text-xs mt-1" style={{ color: '#374151' }}>
+              <span>
+                <span style={{ color: '#4ade80' }}>{dsa.easySolved} Easy</span>
+                {' '}+{' '}
+                <span style={{ color: '#fb923c' }}>{dsa.mediumSolved} Medium</span>
+              </span>
+              <span>{DSA_TARGET} target</span>
+            </div>
+          </div>
+
+          {/* Tip when no problems yet */}
+          {total === 0 && (
+            <p className="text-xs mt-3" style={{ color: '#1f2937' }}>
+              Start with Easy problems — arrays, strings, hashmaps. Aim for 3–4 per week during Phase 2.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Weekly heatmap strip */}
+      <div className="mt-5 pt-4" style={{ borderTop: '1px solid #1a1f2e' }}>
+        <p className="text-xs mb-2" style={{ color: '#374151' }}>Last 7 days</p>
+        <div className="flex gap-1.5">
+          {weekDays.map(day => {
+            const active = dsa.solvedDays.includes(day);
+            const isToday = day === todayStr;
+            return (
+              <div
+                key={day}
+                title={day}
+                className="flex-1 rounded"
+                style={{
+                  height: '20px',
+                  backgroundColor: active ? '#a855f7' : '#1a1f2e',
+                  border: isToday ? '1px solid #6366f1' : 'none',
+                  opacity: active ? 1 : 0.6,
+                  transition: 'background-color 0.2s ease',
+                }}
+              />
+            );
+          })}
+        </div>
+        <div className="flex justify-between text-xs mt-1" style={{ color: '#1f2937' }}>
+          <span>6d ago</span>
+          <span>today</span>
+        </div>
+      </div>
+    </div>
+  );
+}
