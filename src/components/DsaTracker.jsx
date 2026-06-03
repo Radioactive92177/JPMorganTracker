@@ -12,7 +12,7 @@ function ProgressRing({ pct, solved, target }) {
   return (
     <svg width="120" height="120" className="shrink-0">
       {/* Track */}
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#1a1f2e" strokeWidth={stroke} />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--color-border)" strokeWidth={stroke} />
       {/* Progress */}
       <circle
         cx={cx} cy={cy} r={r} fill="none"
@@ -31,10 +31,10 @@ function ProgressRing({ pct, solved, target }) {
         </linearGradient>
       </defs>
       {/* Centre text */}
-      <text x={cx} y={cy - 6} textAnchor="middle" fontSize="22" fontWeight="800" fill="#e2e8f0">
+      <text x={cx} y={cx - 6} textAnchor="middle" fontSize="22" fontWeight="800" fill="var(--color-text)">
         {solved}
       </text>
-      <text x={cx} y={cy + 10} textAnchor="middle" fontSize="10" fill="#4b5563">
+      <text x={cx} y={cx + 10} textAnchor="middle" fontSize="10" fill="var(--color-text-faint)">
         of {target}
       </text>
       <text x={cx} y={cy + 24} textAnchor="middle" fontSize="10" fontWeight="600" fill="#a855f7">
@@ -70,11 +70,11 @@ function AddButton({ label, color, onClick }) {
 function StatBlock({ value, label, sub, color }) {
   return (
     <div className="text-center">
-      <div className="text-2xl font-bold tabular-nums" style={{ color: color || '#e2e8f0' }}>
+      <div className="text-2xl font-bold tabular-nums" style={{ color: color || 'var(--color-text)' }}>
         {value}
       </div>
-      {sub && <div className="text-xs" style={{ color: color ? `${color}99` : '#4b5563' }}>{sub}</div>}
-      <div className="text-xs mt-0.5" style={{ color: '#374151' }}>{label}</div>
+      {sub && <div className="text-xs" style={{ color: color ? `${color}99` : 'var(--color-text-faint)' }}>{sub}</div>}
+      <div className="text-xs mt-0.5" style={{ color: 'var(--color-text-ghost)' }}>{label}</div>
     </div>
   );
 }
@@ -117,7 +117,7 @@ function WeekBarChart({ weekDays, dailyCount, todayStr }) {
               style={{
                 flex: 1,
                 height: `${barH}px`,
-                backgroundColor: count > 0 ? (isToday ? '#c084fc' : '#a855f7') : '#1a1f2e',
+                backgroundColor: count > 0 ? (isToday ? '#c084fc' : '#a855f7') : 'var(--color-border)',
                 borderRadius: '3px 3px 0 0',
                 outline: isToday ? '1px solid #6366f1' : 'none',
                 transition: 'height 0.3s ease',
@@ -139,7 +139,7 @@ function WeekBarChart({ weekDays, dailyCount, todayStr }) {
                 flex: 1,
                 textAlign: 'center',
                 fontSize: '9px',
-                color: count > 0 ? '#64748b' : '#1f2937',
+                color: count > 0 ? 'var(--color-text-dim)' : 'var(--color-text-invisible)',
                 lineHeight: 1,
               }}
             >
@@ -199,7 +199,7 @@ export default function DsaTracker({ dsa, onAddProblem }) {
     <div
       className="rounded-2xl p-5"
       style={{
-        backgroundColor: '#12151f',
+        backgroundColor: 'var(--color-surface)',
         border: '1px solid rgba(168,85,247,0.25)',
         boxShadow: '0 0 30px rgba(168,85,247,0.08)',
       }}
@@ -207,10 +207,10 @@ export default function DsaTracker({ dsa, onAddProblem }) {
       {/* Section header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-base font-bold" style={{ color: '#e2e8f0' }}>
+          <h2 className="text-base font-bold" style={{ color: 'var(--color-text)' }}>
             DSA Tracker
           </h2>
-          <p className="text-xs" style={{ color: '#4b5563' }}>
+          <p className="text-xs" style={{ color: 'var(--color-text-faint)' }}>
             LeetCode grind — target {DSA_TARGET} problems before interview sprint
           </p>
         </div>
@@ -250,7 +250,7 @@ export default function DsaTracker({ dsa, onAddProblem }) {
           <div className="mt-4">
             <div
               className="rounded-full overflow-hidden flex"
-              style={{ height: '8px', backgroundColor: '#1a1f2e' }}
+              style={{ height: '8px', backgroundColor: 'var(--color-border)' }}
             >
               {/* Easy segment */}
               <div
@@ -271,7 +271,7 @@ export default function DsaTracker({ dsa, onAddProblem }) {
                 }}
               />
             </div>
-            <div className="flex justify-between text-xs mt-1" style={{ color: '#374151' }}>
+            <div className="flex justify-between text-xs mt-1" style={{ color: 'var(--color-text-ghost)' }}>
               <span>
                 <span style={{ color: '#4ade80' }}>{dsa.easySolved} Easy</span>
                 {' '}+{' '}
@@ -283,7 +283,7 @@ export default function DsaTracker({ dsa, onAddProblem }) {
 
           {/* Tip when no problems yet */}
           {total === 0 && (
-            <p className="text-xs mt-3" style={{ color: '#1f2937' }}>
+            <p className="text-xs mt-3" style={{ color: 'var(--color-text-invisible)' }}>
               Start with Easy problems — arrays, strings, hashmaps. Aim for 3–4 per week during Phase 2.
             </p>
           )}
@@ -291,10 +291,10 @@ export default function DsaTracker({ dsa, onAddProblem }) {
       </div>
 
       {/* Weekly bar chart */}
-      <div className="mt-5 pt-4" style={{ borderTop: '1px solid #1a1f2e' }}>
-        <p className="text-xs mb-3" style={{ color: '#374151' }}>Last 7 days</p>
+      <div className="mt-5 pt-4" style={{ borderTop: '1px solid var(--color-border)' }}>
+        <p className="text-xs mb-3" style={{ color: 'var(--color-text-ghost)' }}>Last 7 days</p>
         <WeekBarChart weekDays={weekDays} dailyCount={dsa.dailyCount || {}} todayStr={todayStr} />
-        <div className="flex justify-between text-xs mt-1" style={{ color: '#1f2937' }}>
+        <div className="flex justify-between text-xs mt-1" style={{ color: 'var(--color-text-invisible)' }}>
           <span>6d ago</span>
           <span>today</span>
         </div>

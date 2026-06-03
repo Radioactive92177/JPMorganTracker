@@ -1,36 +1,75 @@
 @import "tailwindcss";
 
-/* Base dark-mode styles */
-:root {
+/* ─── Theme CSS Variables ──────────────────────────────────────────────────── */
+
+/* Dark theme (default) */
+:root,
+[data-theme="dark"] {
   color-scheme: dark;
+  --color-bg: #0f1117;
+  --color-surface: #12151f;
+  --color-surface-alt: #0d1018;
+  --color-text: #e2e8f0;
+  --color-text-muted: #94a3b8;
+  --color-text-dim: #64748b;
+  --color-text-faint: #4b5563;
+  --color-text-ghost: #374151;
+  --color-text-invisible: #1f2937;
+  --color-border: #1e2433;
+  --color-header-bg: rgba(10, 12, 20, 0.95);
+  --color-ring-track: #1e2433;
+  --color-scrollbar-track: #1e2433;
+  --color-scrollbar-thumb: #374151;
+  --color-scrollbar-hover: #4b5563;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1f5f9;
+  --color-text: #1e293b;
+  --color-text-muted: #475569;
+  --color-text-dim: #64748b;
+  --color-text-faint: #94a3b8;
+  --color-text-ghost: #cbd5e1;
+  --color-text-invisible: #e2e8f0;
+  --color-border: #e2e8f0;
+  --color-header-bg: rgba(248, 250, 252, 0.95);
+  --color-ring-track: #e2e8f0;
+  --color-scrollbar-track: #f1f5f9;
+  --color-scrollbar-thumb: #cbd5e1;
+  --color-scrollbar-hover: #94a3b8;
 }
 
 body {
-  background-color: #0f1117;
-  color: #e2e8f0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   min-height: 100vh;
   margin: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
   box-sizing: border-box;
 }
 
-/* Scrollbar styling for dark mode */
+/* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #1e2433;
+  background: var(--color-scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: var(--color-scrollbar-thumb);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: var(--color-scrollbar-hover);
 }
 
 /* Smooth expand/collapse */

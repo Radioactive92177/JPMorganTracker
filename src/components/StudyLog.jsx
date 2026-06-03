@@ -21,16 +21,16 @@ function LogEntry({ entry, index }) {
     <div
       className="rounded-lg p-3"
       style={{
-        backgroundColor: isRecent ? 'rgba(34,211,238,0.04)' : '#0d1018',
-        border: `1px solid ${isRecent ? 'rgba(34,211,238,0.12)' : '#1a1f2e'}`,
+        backgroundColor: isRecent ? 'rgba(34,211,238,0.04)' : 'var(--color-surface-alt)',
+        border: `1px solid ${isRecent ? 'rgba(34,211,238,0.12)' : 'var(--color-border)'}`,
       }}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-sm leading-relaxed" style={{ color: '#cbd5e1' }}>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
             {entry.notes}
           </p>
-          <p className="text-xs mt-1" style={{ color: '#374151' }}>
+          <p className="text-xs mt-1" style={{ color: 'var(--color-text-ghost)' }}>
             {formatDate(entry.date)}
           </p>
         </div>
@@ -76,29 +76,29 @@ export default function StudyLog({ studyLog, onAddEntry }) {
     <div
       className="rounded-2xl p-5"
       style={{
-        backgroundColor: '#12151f',
-        border: '1px solid #1a1f2e',
+        backgroundColor: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
       }}
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-base font-bold" style={{ color: '#e2e8f0' }}>
+          <h2 className="text-base font-bold" style={{ color: 'var(--color-text)' }}>
             Daily Study Log
           </h2>
-          <p className="text-xs" style={{ color: '#4b5563' }}>
+          <p className="text-xs" style={{ color: 'var(--color-text-faint)' }}>
             Track your 1AM–5AM sessions · {studyLog.length} entries · {totalHours.toFixed(1)}h total
           </p>
         </div>
         {totalHours > 0 && (
           <div
             className="text-center px-3 py-1.5 rounded-lg"
-            style={{ backgroundColor: '#0d1018', border: '1px solid #1e2433' }}
+            style={{ backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)' }}
           >
             <div className="text-lg font-bold tabular-nums" style={{ color: '#22d3ee' }}>
               {totalHours.toFixed(0)}h
             </div>
-            <div className="text-xs" style={{ color: '#374151' }}>logged</div>
+            <div className="text-xs" style={{ color: 'var(--color-text-ghost)' }}>logged</div>
           </div>
         )}
       </div>
@@ -113,12 +113,12 @@ export default function StudyLog({ studyLog, onAddEntry }) {
             placeholder="What did you study today? e.g. Docker networking + docker-compose practice"
             className="flex-1 rounded-lg px-3 py-2.5 text-sm outline-none"
             style={{
-              backgroundColor: '#0d1018',
-              border: error ? '1px solid #7f1d1d' : '1px solid #1e2433',
-              color: '#e2e8f0',
+              backgroundColor: 'var(--color-surface-alt)',
+              border: error ? '1px solid #7f1d1d' : '1px solid var(--color-border)',
+              color: 'var(--color-text)',
             }}
             onFocus={e => { e.currentTarget.style.borderColor = '#22d3ee55'; }}
-            onBlur={e => { e.currentTarget.style.borderColor = error ? '#7f1d1d' : '#1e2433'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = error ? '#7f1d1d' : ''; }}
           />
           <input
             type="number"
@@ -130,13 +130,13 @@ export default function StudyLog({ studyLog, onAddEntry }) {
             step="0.5"
             className="rounded-lg px-3 text-sm outline-none w-24 sm:w-20 text-center tabular-nums"
             style={{
-              backgroundColor: '#0d1018',
-              border: '1px solid #1e2433',
-              color: '#e2e8f0',
+              backgroundColor: 'var(--color-surface-alt)',
+              border: '1px solid var(--color-border)',
+              color: 'var(--color-text)',
               minHeight: '44px',
             }}
             onFocus={e => { e.currentTarget.style.borderColor = '#22d3ee55'; }}
-            onBlur={e => { e.currentTarget.style.borderColor = '#1e2433'; }}
+            onBlur={e => { e.currentTarget.style.borderColor = ''; }}
           />
           <button
             type="submit"
@@ -163,7 +163,7 @@ export default function StudyLog({ studyLog, onAddEntry }) {
       {recentLogs.length === 0 ? (
         <div
           className="rounded-lg p-4 text-center text-sm"
-          style={{ backgroundColor: '#0d1018', border: '1px dashed #1e2433', color: '#374151' }}
+          style={{ backgroundColor: 'var(--color-surface-alt)', border: '1px dashed var(--color-border)', color: 'var(--color-text-ghost)' }}
         >
           No entries yet. Log your first study session above.
         </div>
@@ -173,7 +173,7 @@ export default function StudyLog({ studyLog, onAddEntry }) {
             <LogEntry key={entry.id} entry={entry} index={i} />
           ))}
           {studyLog.length > 10 && (
-            <p className="text-xs text-center mt-1" style={{ color: '#374151' }}>
+            <p className="text-xs text-center mt-1" style={{ color: 'var(--color-text-ghost)' }}>
               Showing last 10 of {studyLog.length} entries
             </p>
           )}

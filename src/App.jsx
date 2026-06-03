@@ -196,7 +196,7 @@ export default function App() {
   const { phases, dsa, studyLog, studyStreak } = state;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#0f1117', color: '#e2e8f0' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
       <Header phases={phases} dsa={dsa} studyStreak={studyStreak} />
 
       <main className="max-w-6xl mx-auto px-4 pb-16" style={{ paddingTop: '128px' }}>
@@ -210,7 +210,7 @@ export default function App() {
         <section className="mb-10">
           <h2
             className="text-xs font-semibold tracking-widest mb-4 uppercase"
-            style={{ color: '#4b5563' }}
+            style={{ color: 'var(--color-text-faint)' }}
           >
             Learning Roadmap
           </h2>
@@ -234,14 +234,14 @@ export default function App() {
         {/* Motivational footer */}
         <footer
           className="rounded-xl p-5 text-sm mt-8"
-          style={{ backgroundColor: '#12151f', borderLeft: '3px solid #374151', color: '#64748b' }}
+          style={{ backgroundColor: 'var(--color-surface)', borderLeft: '3px solid var(--color-text-ghost)', color: 'var(--color-text-dim)' }}
         >
-          <p className="text-xs tracking-widest uppercase mb-2" style={{ color: '#374151' }}>Context</p>
+          <p className="text-xs tracking-widest uppercase mb-2" style={{ color: 'var(--color-text-ghost)' }}>Context</p>
           <p className="leading-relaxed">
             4 years of night shifts. Top Performer 2024. Two US visas approved.
             200+ production incidents resolved. 30+ client onboardings delivered.
             Healthcare data pipelines running in production every night.{' '}
-            <span style={{ color: '#94a3b8', fontWeight: 600 }}>You're not starting from zero.</span>
+            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>You're not starting from zero.</span>
           </p>
           <NightShiftCounter />
         </footer>
@@ -250,17 +250,17 @@ export default function App() {
         <div className="mt-8 text-center flex items-center justify-center gap-4">
           <button
             onClick={exportProgress}
-            style={{ color: '#374151', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem' }}
+            style={{ color: 'var(--color-text-ghost)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem' }}
             onMouseEnter={e => { e.currentTarget.style.color = '#22d3ee'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#374151'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-ghost)'; }}
           >
             ↓ Export progress
           </button>
           <button
             onClick={resetAll}
-            style={{ color: '#374151', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem' }}
+            style={{ color: 'var(--color-text-ghost)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem' }}
             onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; }}
-            onMouseLeave={e => { e.currentTarget.style.color = '#374151'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-ghost)'; }}
           >
             Reset all data
           </button>
@@ -277,7 +277,7 @@ function NightShiftCounter() {
   const years = Math.floor(days / 365);
   const rem = days - years * 365;
   return (
-    <p className="mt-3 text-xs" style={{ color: '#1f2937' }}>
+    <p className="mt-3 text-xs" style={{ color: 'var(--color-text-invisible)' }}>
       Night-shift tenure: {years}y {rem}d ({days.toLocaleString()} total days) · IST 1AM–5AM study window · Target: JP Morgan Hyderabad + Netherlands / Germany / Sweden
     </p>
   );
