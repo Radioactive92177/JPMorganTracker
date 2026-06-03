@@ -21,6 +21,12 @@ function isUpcomingPhase(phase) {
   return today < phase.startDate;
 }
 
+/** Format a YYYY-MM-DD date string as "Aug 2026" */
+function formatStartDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
+
 // ─── Progress bar ─────────────────────────────────────────────────────────
 function ProgressBar({ pct, accent }) {
   return (
@@ -120,11 +126,17 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
             </p>
           </div>
 
-          {/* Right: pct + chevron */}
+          {/* Right: pct (hidden for upcoming) + chevron */}
           <div className="flex items-center gap-3 shrink-0">
-            <span className="text-lg font-bold tabular-nums" style={{ color: colors.accent }}>
-              {pct}%
-            </span>
+            {upcoming ? (
+              <span className="text-xs flex items-center gap-1" style={{ color: '#4b5563' }}>
+                🔒 {formatStartDate(phase.startDate)}
+              </span>
+            ) : (
+              <span className="text-lg font-bold tabular-nums" style={{ color: colors.accent }}>
+                {pct}%
+              </span>
+            )}
             <svg
               width="16" height="16" viewBox="0 0 16 16" fill="none"
               style={{
@@ -138,12 +150,20 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
           </div>
         </div>
 
-        {/* Progress bar */}
+        {/* Progress bar (hidden for upcoming) */}
         <div className="mt-3">
-          <ProgressBar pct={pct} accent={colors.accent} />
-          <p className="text-xs mt-1" style={{ color: '#374151' }}>
-            {completedCount} / {totalCount} skills complete
-          </p>
+          {upcoming ? (
+            <p className="text-xs" style={{ color: '#374151' }}>
+              Starts {formatStartDate(phase.startDate)} · {totalCount} skills planned
+            </p>
+          ) : (
+            <>
+              <ProgressBar pct={pct} accent={colors.accent} />
+              <p className="text-xs mt-1" style={{ color: '#374151' }}>
+                {completedCount} / {totalCount} skills complete
+              </p>
+            </>
+          )}
         </div>
       </button>
 
@@ -175,3 +195,4 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
     </div>
   );
 }
+

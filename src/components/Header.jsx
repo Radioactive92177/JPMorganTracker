@@ -96,9 +96,11 @@ export default function Header({ phases, dsa, studyStreak }) {
 
   // Phase progress summary pills
   const phasePills = phases.map(p => {
+    const today = new Date().toISOString().slice(0, 10);
+    const upcoming = today < p.startDate;
     const done = p.skills.filter(s => s.completed).length;
     const pct = Math.round((done / p.skills.length) * 100);
-    return { ...p, pct };
+    return { ...p, pct, upcoming };
   });
 
   return (
@@ -163,23 +165,29 @@ export default function Header({ phases, dsa, studyStreak }) {
               <span className="text-xs hidden sm:block" style={{ color: '#4b5563', minWidth: '80px' }}>
                 {p.shortName}
               </span>
-              {/* Mini progress bar */}
-              <div
-                className="rounded-full overflow-hidden"
-                style={{ width: '60px', height: '4px', backgroundColor: '#1e2433' }}
-              >
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${p.pct}%`,
-                    backgroundColor: PHASE_COLORS[p.color],
-                    transition: 'width 0.4s ease',
-                  }}
-                />
-              </div>
-              <span className="text-xs tabular-nums" style={{ color: '#64748b' }}>
-                {p.pct}%
-              </span>
+              {/* Mini progress bar or lock for upcoming */}
+              {p.upcoming ? (
+                <span className="text-xs" style={{ color: '#374151' }}>🔒</span>
+              ) : (
+                <>
+                  <div
+                    className="rounded-full overflow-hidden"
+                    style={{ width: '60px', height: '4px', backgroundColor: '#1e2433' }}
+                  >
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${p.pct}%`,
+                        backgroundColor: PHASE_COLORS[p.color],
+                        transition: 'width 0.4s ease',
+                      }}
+                    />
+                  </div>
+                  <span className="text-xs tabular-nums" style={{ color: '#64748b' }}>
+                    {p.pct}%
+                  </span>
+                </>
+              )}
             </div>
           ))}
         </div>

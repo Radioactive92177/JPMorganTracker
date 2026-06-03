@@ -128,23 +128,25 @@ export default function StudyLog({ studyLog, onAddEntry }) {
             min="0"
             max="24"
             step="0.5"
-            className="rounded-lg px-3 py-2.5 text-sm outline-none w-full sm:w-20 text-center tabular-nums"
+            className="rounded-lg px-3 text-sm outline-none w-24 sm:w-20 text-center tabular-nums"
             style={{
               backgroundColor: '#0d1018',
               border: '1px solid #1e2433',
               color: '#e2e8f0',
+              minHeight: '44px',
             }}
             onFocus={e => { e.currentTarget.style.borderColor = '#22d3ee55'; }}
             onBlur={e => { e.currentTarget.style.borderColor = '#1e2433'; }}
           />
           <button
             type="submit"
-            className="rounded-lg px-4 py-2.5 text-sm font-semibold cursor-pointer shrink-0"
+            className="rounded-lg px-4 text-sm font-semibold cursor-pointer shrink-0"
             style={{
               backgroundColor: 'rgba(34,211,238,0.1)',
               color: '#22d3ee',
               border: '1px solid rgba(34,211,238,0.25)',
               transition: 'background-color 0.15s ease',
+              minHeight: '44px',
             }}
             onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(34,211,238,0.18)'; }}
             onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'rgba(34,211,238,0.1)'; }}
