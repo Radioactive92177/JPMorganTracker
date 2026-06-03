@@ -73,7 +73,7 @@ function StatBlock({ value, label, sub, color }) {
       <div className="text-2xl font-bold tabular-nums" style={{ color: color || '#e2e8f0' }}>
         {value}
       </div>
-      {sub && <div className="text-xs" style={{ color: `${color}99` || '#4b5563' }}>{sub}</div>}
+      {sub && <div className="text-xs" style={{ color: color ? `${color}99` : '#4b5563' }}>{sub}</div>}
       <div className="text-xs mt-0.5" style={{ color: '#374151' }}>{label}</div>
     </div>
   );
@@ -119,8 +119,7 @@ export default function DsaTracker({ dsa, onAddProblem }) {
   const weekDays = useMemo(() => getWeekDays(), []);
   const todayStr = getTodayStr();
 
-  // How many problems solved today (we track days but not per-problem breakdown)
-  const solvedToday = dsa.solvedDays.includes(todayStr) ? 1 : 0;
+  // How many active days this week (we track days but not per-problem breakdown)
   const solvedThisWeek = weekDays.filter(d => dsa.solvedDays.includes(d)).length;
 
   // Compute consecutive-day DSA streak
