@@ -122,7 +122,7 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
             </div>
 
             {/* Date + week count */}
-            <p className="text-xs" style={{ color: 'var(--color-text-ghost)' }}>
+            <p className="text-xs" style={{ color: `${colors.accent}99` }}>
               {phase.dateRange} · {phase.weeks} weeks
             </p>
           </div>
@@ -130,7 +130,7 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
           {/* Right: pct (hidden for upcoming) + chevron */}
           <div className="flex items-center gap-3 shrink-0">
             {upcoming ? (
-              <span className="text-xs flex items-center gap-1" style={{ color: 'var(--color-text-faint)' }}>
+              <span className="text-xs flex items-center gap-1" style={{ color: `${colors.accent}99` }}>
                 🔒 {formatStartDate(phase.startDate)}
               </span>
             ) : (
@@ -143,7 +143,7 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
               style={{
                 transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'transform 0.25s ease',
-                color: 'var(--color-text-ghost)',
+                color: `${colors.accent}80`,
               }}
             >
               <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -154,13 +154,13 @@ export default function PhaseCard({ phase, onToggleSkill, onUpdateNotes }) {
         {/* Progress bar (hidden for upcoming) */}
         <div className="mt-3">
           {upcoming ? (
-            <p className="text-xs" style={{ color: 'var(--color-text-ghost)' }}>
+            <p className="text-xs" style={{ color: `${colors.accent}99` }}>
               Starts {formatStartDate(phase.startDate)} · {totalCount} skills planned
             </p>
           ) : (
             <>
               <ProgressBar pct={pct} accent={colors.accent} />
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-ghost)' }}>
+              <p className="text-xs mt-1" style={{ color: `${colors.accent}99` }}>
                 {completedCount} / {totalCount} skills complete
               </p>
             </>

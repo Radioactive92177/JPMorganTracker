@@ -117,7 +117,7 @@ export default function SkillItem({ skill, phaseId, onToggle, onUpdateNotes }) {
           </div>
 
           {/* Description */}
-          <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--color-text-ghost)' }}>
+          <p className="text-xs mt-0.5 leading-relaxed" style={{ color: 'var(--color-text-dim)' }}>
             {skill.description}
           </p>
 
