@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import './index.css';
 
 import { STORAGE_KEY, buildDefaultState } from './data/initialData';
@@ -6,6 +6,9 @@ import Header from './components/Header';
 import PhaseCard from './components/PhaseCard';
 import DsaTracker from './components/DsaTracker';
 import StudyLog from './components/StudyLog';
+import ConfirmModal from './components/ConfirmModal';
+import { useToast } from './hooks/useToast';
+import ToastContainer from './components/ToastContainer';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -47,12 +50,36 @@ function migrate(saved) {
   return s;
 }
 
+/** Validate imported data has the expected shape */
+function validateState(data) {
+  if (!data || typeof data !== 'object') return false;
+  if (!Array.isArray(data.phases)) return false;
+  if (!data.dsa || typeof data.dsa !== 'object') return false;
+  if (!Array.isArray(data.studyLog)) return false;
+
+  // Validate phases structure
+  for (const phase of data.phases) {
+    if (!phase.id || !phase.name || !Array.isArray(phase.skills)) return false;
+    for (const skill of phase.skills) {
+      if (!skill.id || !skill.name) return false;
+    }
+  }
+
+  // Validate DSA structure
+  if (typeof data.dsa.easySolved !== 'number' || typeof data.dsa.mediumSolved !== 'number') return false;
+  if (!Array.isArray(data.dsa.solvedDays)) return false;
+
+  return true;
+}
+
 /** Load state from localStorage; fall back to default seed on first visit */
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return buildDefaultState();
-    return migrate(JSON.parse(raw));
+    const parsed = JSON.parse(raw);
+    if (!validateState(parsed)) return buildDefaultState();
+    return migrate(parsed);
   } catch {
     return buildDefaultState();
   }
@@ -71,6 +98,8 @@ function saveState(state) {
 
 export default function App() {
   const [state, setState] = useState(() => loadState());
+  const [confirmModal, setConfirmModal] = useState(null);
+  const { toasts, addToast, removeToast } = useToast();
 
   // Persist on every state change
   useEffect(() => {
@@ -150,8 +179,8 @@ export default function App() {
       const entry = {
         id: `log-${Date.now()}`,
         date: now.toISOString(),
-        hours: parseFloat(hours) || 0,
-        notes: notes.trim(),
+        hours: Math.max(0, Math.min(24, parseFloat(hours) || 0)),
+        notes: notes.trim().slice(0, 500),
       };
 
       return {
@@ -161,53 +190,140 @@ export default function App() {
         studyStreak: streak,
       };
     });
-  }, []);
+
+    addToast('Study session logged ✓', 'success');
+  }, [addToast]);
 
   // ── Reset all data ────────────────────────────────────────────────────────
   const resetAll = useCallback(() => {
-    if (window.confirm('This will wipe ALL progress, DSA counts, and study logs. Are you sure?')) {
-      const fresh = buildDefaultState();
-      // Ensure every skill is reset to uncompleted regardless of default state
-      fresh.phases = fresh.phases.map(phase => ({
-        ...phase,
-        skills: phase.skills.map(skill => ({
-          ...skill,
-          completed: false,
-          notes: '',
-          tag: skill.tag === 'already have' ? 'learning' : skill.tag,
-        })),
-      }));
-      setState(fresh);
-    }
-  }, []);
+    setConfirmModal({
+      title: 'Reset All Progress',
+      message: 'This will permanently erase ALL your progress, DSA counts, and study logs. This action cannot be undone.',
+      confirmLabel: 'Reset Everything',
+      cancelLabel: 'Keep My Data',
+      variant: 'destructive',
+      onConfirm: () => {
+        const fresh = buildDefaultState();
+        fresh.phases = fresh.phases.map(phase => ({
+          ...phase,
+          skills: phase.skills.map(skill => ({
+            ...skill,
+            completed: false,
+            notes: '',
+            tag: skill.tag === 'already have' ? 'learning' : skill.tag,
+          })),
+        }));
+        setState(fresh);
+        setConfirmModal(null);
+        addToast('All data has been reset', 'info');
+      },
+      onCancel: () => setConfirmModal(null),
+    });
+  }, [addToast]);
 
   // ── Export progress ───────────────────────────────────────────────────────
   const exportProgress = useCallback(() => {
-    const json = JSON.stringify(state, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'raju-roadmap-backup.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [state]);
+    try {
+      const json = JSON.stringify(state, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `devops-roadmap-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      addToast('Progress exported successfully', 'success');
+    } catch {
+      addToast('Export failed — please try again', 'error');
+    }
+  }, [state, addToast]);
+
+  // ── Import progress ───────────────────────────────────────────────────────
+  const importProgress = useCallback(() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      // Limit file size to 1MB to prevent abuse
+      if (file.size > 1024 * 1024) {
+        addToast('File too large — maximum 1MB allowed', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          if (!validateState(data)) {
+            addToast('Invalid backup file — data structure mismatch', 'error');
+            return;
+          }
+
+          setConfirmModal({
+            title: 'Restore Backup',
+            message: `This will replace all current data with the imported backup (${file.name}). Your current progress will be overwritten.`,
+            confirmLabel: 'Restore',
+            cancelLabel: 'Cancel',
+            variant: 'destructive',
+            onConfirm: () => {
+              setState(migrate(data));
+              setConfirmModal(null);
+              addToast('Progress restored from backup ✓', 'success');
+            },
+            onCancel: () => setConfirmModal(null),
+          });
+        } catch {
+          addToast('Could not parse file — ensure it is a valid JSON backup', 'error');
+        }
+      };
+      reader.onerror = () => {
+        addToast('Failed to read file', 'error');
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }, [addToast]);
 
   const { phases, dsa, studyLog, studyStreak } = state;
 
+  // ── Keyboard shortcuts ────────────────────────────────────────────────────
+  useEffect(() => {
+    const handleKeyboard = (e) => {
+      // Ctrl/Cmd + S to export
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        exportProgress();
+      }
+    };
+    document.addEventListener('keydown', handleKeyboard);
+    return () => document.removeEventListener('keydown', handleKeyboard);
+  }, [exportProgress]);
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
+      {/* Skip to content link for keyboard/screen-reader users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-semibold"
+        style={{ backgroundColor: 'var(--color-surface)', color: '#22d3ee', border: '1px solid rgba(34,211,238,0.3)' }}
+      >
+        Skip to main content
+      </a>
+
       <Header phases={phases} dsa={dsa} studyStreak={studyStreak} />
 
-      <main className="max-w-6xl mx-auto px-4 pb-16" style={{ paddingTop: '128px' }}>
+      <main id="main-content" className="max-w-6xl mx-auto px-4 pb-16" style={{ paddingTop: '128px' }}>
 
         {/* DSA Tracker — most prominent section after header */}
-        <section className="mb-10">
+        <section aria-label="DSA Problem Tracker" className="mb-10">
           <DsaTracker dsa={dsa} onAddProblem={addDsaProblem} />
         </section>
 
         {/* Phase Cards */}
-        <section className="mb-10">
+        <section aria-label="Learning Roadmap" className="mb-10">
           <h2
             className="text-xs font-semibold tracking-widest mb-4 uppercase"
             style={{ color: 'var(--color-text-faint)' }}
@@ -227,7 +343,7 @@ export default function App() {
         </section>
 
         {/* Study Log */}
-        <section className="mb-10">
+        <section aria-label="Daily Study Log" className="mb-10">
           <StudyLog studyLog={studyLog} onAddEntry={addStudyEntry} />
         </section>
 
@@ -241,44 +357,82 @@ export default function App() {
             4 years of night shifts. Top Performer 2024. Two US visas approved.
             200+ production incidents resolved. 30+ client onboardings delivered.
             Healthcare data pipelines running in production every night.{' '}
-            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>You're not starting from zero.</span>
+            <span style={{ color: 'var(--color-text-muted)', fontWeight: 600 }}>You&apos;re not starting from zero.</span>
           </p>
           <NightShiftCounter />
         </footer>
 
-        {/* Reset + Export — discreet */}
-        <div className="mt-8 text-center flex items-center justify-center gap-4">
+        {/* Data management — discreet */}
+        <div className="mt-8 text-center flex items-center justify-center gap-4 flex-wrap">
           <button
             onClick={exportProgress}
-            style={{ color: 'var(--color-text-ghost)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem' }}
+            className="text-xs transition-colors duration-150"
+            style={{ color: 'var(--color-text-ghost)', background: 'none', border: 'none', cursor: 'pointer' }}
             onMouseEnter={e => { e.currentTarget.style.color = '#22d3ee'; }}
             onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-ghost)'; }}
+            aria-label="Export progress as JSON backup"
           >
             ↓ Export progress
           </button>
           <button
+            onClick={importProgress}
+            className="text-xs transition-colors duration-150"
+            style={{ color: 'var(--color-text-ghost)', background: 'none', border: 'none', cursor: 'pointer' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#22d3ee'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-ghost)'; }}
+            aria-label="Import progress from JSON backup"
+          >
+            ↑ Import backup
+          </button>
+          <button
             onClick={resetAll}
-            style={{ color: 'var(--color-text-ghost)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75rem' }}
+            className="text-xs transition-colors duration-150"
+            style={{ color: 'var(--color-text-ghost)', background: 'none', border: 'none', cursor: 'pointer' }}
             onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; }}
             onMouseLeave={e => { e.currentTarget.style.color = 'var(--color-text-ghost)'; }}
+            aria-label="Reset all data"
           >
             Reset all data
           </button>
+          <span className="text-xs" style={{ color: 'var(--color-text-invisible)' }}>
+            Ctrl+S to export
+          </span>
         </div>
       </main>
+
+      {/* Toast notifications */}
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
+
+      {/* Confirmation modal */}
+      {confirmModal && (
+        <ConfirmModal
+          open={true}
+          title={confirmModal.title}
+          message={confirmModal.message}
+          confirmLabel={confirmModal.confirmLabel}
+          cancelLabel={confirmModal.cancelLabel}
+          variant={confirmModal.variant}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={confirmModal.onCancel}
+        />
+      )}
     </div>
   );
 }
 
-function NightShiftCounter() {
-  const start = new Date('2022-01-01');
-  const now = new Date();
-  const days = Math.floor((now - start) / (1000 * 60 * 60 * 24));
-  const years = Math.floor(days / 365);
-  const rem = days - years * 365;
+const NightShiftCounter = function NightShiftCounter() {
+  const { days, years, rem } = useMemo(() => {
+    const start = new Date('2022-01-01');
+    const now = new Date();
+    const d = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+    const y = Math.floor(d / 365);
+    const r = d - y * 365;
+    return { days: d, years: y, rem: r };
+  }, []);
+
   return (
     <p className="mt-3 text-xs" style={{ color: 'var(--color-text-invisible)' }}>
       Night-shift tenure: {years}y {rem}d ({days.toLocaleString()} total days) · IST 1AM–5AM study window · Target: JP Morgan Hyderabad + Netherlands / Germany / Sweden
     </p>
   );
-}
+};
