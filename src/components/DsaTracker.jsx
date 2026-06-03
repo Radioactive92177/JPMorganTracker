@@ -31,10 +31,10 @@ function ProgressRing({ pct, solved, target }) {
         </linearGradient>
       </defs>
       {/* Centre text */}
-      <text x={cx} y={cx - 6} textAnchor="middle" fontSize="22" fontWeight="800" fill="var(--color-text)">
+      <text x={cx} y={cy - 6} textAnchor="middle" fontSize="22" fontWeight="800" fill="var(--color-text)">
         {solved}
       </text>
-      <text x={cx} y={cx + 10} textAnchor="middle" fontSize="10" fill="var(--color-text-faint)">
+      <text x={cx} y={cy + 10} textAnchor="middle" fontSize="10" fill="var(--color-text-faint)">
         of {target}
       </text>
       <text x={cx} y={cy + 24} textAnchor="middle" fontSize="10" fontWeight="600" fill="#a855f7">

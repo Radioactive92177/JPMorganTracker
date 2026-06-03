@@ -118,7 +118,7 @@ export default function StudyLog({ studyLog, onAddEntry }) {
               color: 'var(--color-text)',
             }}
             onFocus={e => { e.currentTarget.style.borderColor = '#22d3ee55'; }}
-            onBlur={e => { e.currentTarget.style.borderColor = error ? '#7f1d1d' : ''; }}
+            onBlur={e => { e.currentTarget.style.borderColor = error ? '#7f1d1d' : 'var(--color-border)'; }}
           />
           <input
             type="number"
@@ -136,7 +136,7 @@ export default function StudyLog({ studyLog, onAddEntry }) {
               minHeight: '44px',
             }}
             onFocus={e => { e.currentTarget.style.borderColor = '#22d3ee55'; }}
-            onBlur={e => { e.currentTarget.style.borderColor = ''; }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'var(--color-border)'; }}
           />
           <button
             type="submit"
