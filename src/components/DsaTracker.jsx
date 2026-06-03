@@ -171,8 +171,10 @@ export default function DsaTracker({ dsa, onAddProblem }) {
   const total = dsa.easySolved + dsa.mediumSolved;
   const pct = Math.min(100, Math.round((total / DSA_TARGET) * 100));
 
-  const weekDays = useMemo(() => getWeekDays(), []);
+  // Recompute weekDays based on today's date so the chart updates overnight
   const todayStr = getTodayStr();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const weekDays = useMemo(() => getWeekDays(), [todayStr]);
 
   // How many active days this week (we track days but not per-problem breakdown)
   const solvedThisWeek = weekDays.filter(d => dsa.solvedDays.includes(d)).length;
